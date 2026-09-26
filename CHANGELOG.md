@@ -14,3 +14,4 @@ All notable changes will be documented in this file.
 - Added a non-destructive migration path for legacy ID-only lists.
 - Changed the project license from MIT to Apache License 2.0.
 - Added an ignored secrets configuration fallback for FTP-only shared hosting.
+- Added a reproducible PHP and Node.js development container.

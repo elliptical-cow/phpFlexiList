@@ -54,6 +54,16 @@ composer check
 npm test
 ```
 
+VS Code and GitHub Codespaces can use the included Dev Container. After the
+container is created, start the local server with:
+
+```sh
+php -S 0.0.0.0:8080 -t public public/index.php
+```
+
+Port 8080 is forwarded automatically. The container uses PHP 8.3, Composer,
+and Node.js 20 and runs the unit tests after creation.
+
 The test suite has no application runtime dependencies. CI runs PHP linting and
 tests on supported PHP versions, frontend tests on Node.js, and checksum
 verification for vendored browser libraries.

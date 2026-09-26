@@ -1,0 +1,30 @@
+{
+  "name": "FlexiList",
+  "image": "mcr.microsoft.com/devcontainers/php:4-8.3-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "FlexiList",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "composer validate --strict --no-check-publish && composer test && npm test",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "remoteUser": "vscode"
+}
