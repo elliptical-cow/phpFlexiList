@@ -33,6 +33,8 @@ the access credential: anyone who has it can edit the list.
 For production, point the web server document root at `public/`, use HTTPS,
 and keep `data/`, `var/`, and configuration files outside public access. See
 [deployment](docs/deployment.md) and the [security model](docs/security-model.md).
+Existing installations that used the old list-ID-only access model must run the
+documented legacy access migration before switching production traffic.
 
 ## Configuration and customization
 

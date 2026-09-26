@@ -48,3 +48,17 @@ Useful environment variables:
 
 Back up both the configured data directory and its `.access/` subdirectory.
 Losing `.access/` makes the corresponding lists inaccessible.
+
+## Migrating installations created before access tokens
+
+Back up the complete data directory, then run the non-destructive migration:
+
+```sh
+php tools/migrate_legacy_access.php /private/data /private/legacy-link-mapping.json
+```
+
+The command validates each old list, creates a new protected copy, and writes
+the new private links to a mode-`0600` mapping file. It does not delete or
+change legacy files. Treat the mapping file like a password, distribute new
+links through a trusted channel, verify the migrated lists, and only then
+archive the old files outside the live data directory.

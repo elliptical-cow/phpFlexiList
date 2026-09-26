@@ -103,6 +103,35 @@ $test('site templates override defaults and receive safe tokens', function () us
     $assert($renderer->render('landing', 'en-US') === 'Default Example');
 });
 
+$test('legacy migration creates protected copies without changing originals', function () use ($temporaryRoot, $assert): void {
+    $data = $temporaryRoot . '/legacy';
+    mkdir($data, 0700, true);
+    $legacyPath = $data . '/shopping.json';
+    $legacy = [
+        'Metadata' => ['Title' => 'Shopping', 'Hide_Checked' => false],
+        'Checklist' => [],
+    ];
+    file_put_contents($legacyPath, json_encode($legacy));
+    $mappingPath = $temporaryRoot . '/mapping.json';
+    $command = escapeshellarg(PHP_BINARY)
+        . ' ' . escapeshellarg(dirname(__DIR__) . '/tools/migrate_legacy_access.php')
+        . ' ' . escapeshellarg($data)
+        . ' ' . escapeshellarg($mappingPath)
+        . ' 2>&1';
+    exec($command, $output, $status);
+
+    $assert($status === 0, implode("\n", $output));
+    $assert(is_file($legacyPath), 'Legacy list was removed');
+    $mapping = json_decode((string) file_get_contents($mappingPath), true);
+    $assert(isset($mapping['shopping']['id'], $mapping['shopping']['token']));
+    $assert(is_file($data . '/' . $mapping['shopping']['id'] . '.json'));
+    $access = new ListAccessService($data);
+    $access->assertAuthorized(
+        $mapping['shopping']['id'],
+        'Bearer ' . $mapping['shopping']['token']
+    );
+});
+
 $test('JSON Patch applies a validated replacement', function () use ($assert): void {
     $updated = JsonPatch::apply(
         ['Metadata' => ['Title' => 'Old']],
