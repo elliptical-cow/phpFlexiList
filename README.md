@@ -38,9 +38,11 @@ documented legacy access migration before switching production traffic.
 
 ## Configuration and customization
 
-Defaults work for local development and live in `config/defaults.php`. Use the ignored `config/site.php` or an
-external file selected with `FLEXILIST_SITE_CONFIG` for a deployment. Secrets
-are read from environment variables and must never be committed.
+Defaults work for local development and live in `config/defaults.php`. Use the
+ignored `config/site.php` or an external file selected with
+`FLEXILIST_SITE_CONFIG` for a deployment. Secrets are read from environment
+variables. On FTP-only shared hosting, the ignored `config/secrets.php` is an
+alternative. Secrets must never be committed or placed below the web root.
 
 See [site customization](docs/site-customization.md) for templates, branding,
 CSS, and optional legal-page routes.

@@ -30,12 +30,27 @@ Then open `http://127.0.0.1:8080`.
 
 Copy `config/site.example.php` to the ignored `config/site.php`, or set
 `FLEXILIST_SITE_CONFIG` to an absolute configuration path outside the checkout.
-Secrets should be injected through the environment.
+Secrets should normally be injected through the environment.
+
+On shared hosting without environment-variable configuration, copy
+`config/secrets.example.php` to the ignored `config/secrets.php` and edit the
+copy locally before uploading it. This fallback is safe only when the domain's
+document root points to `public/`; never expose the project root through the
+web server.
+
+Configuration is applied in this order, with later layers taking precedence:
+
+1. `config/defaults.php`;
+2. site configuration;
+3. secrets configuration;
+4. environment variables.
 
 Useful environment variables:
 
 | Variable | Purpose |
 | --- | --- |
+| `FLEXILIST_SITE_CONFIG` | Absolute path to the site configuration |
+| `FLEXILIST_SECRETS_CONFIG` | Absolute path to the secrets configuration |
 | `FLEXILIST_APP_NAME` | Public application name |
 | `FLEXILIST_BACKEND_URL` | Public origin, for example `https://lists.example.com` |
 | `FLEXILIST_DATA_DIR` | Private persistent list storage |

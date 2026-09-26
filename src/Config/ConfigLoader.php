@@ -21,7 +21,18 @@ final class ConfigLoader
             }
         }
 
-        $config = array_replace_recursive($defaults, $siteConfig);
+        $secretsConfigPath = getenv('FLEXILIST_SECRETS_CONFIG')
+            ?: $projectRoot . '/config/secrets.php';
+        $secretsConfig = [];
+
+        if (is_file($secretsConfigPath)) {
+            $secretsConfig = require $secretsConfigPath;
+            if (!is_array($secretsConfig)) {
+                throw new RuntimeException('Secrets configuration must return an array');
+            }
+        }
+
+        $config = array_replace_recursive($defaults, $siteConfig, $secretsConfig);
         self::applyEnvironment($config);
         self::validate($config);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/autoload.php';
 
+use FlexiList\Config\ConfigLoader;
 use FlexiList\Models\ChecklistModel;
 use FlexiList\Models\ValidationException;
 use FlexiList\Security\AccessDeniedException;
@@ -101,6 +102,24 @@ $test('site templates override defaults and receive safe tokens', function () us
     $renderer = new TemplateRenderer($defaults, $overrides, ['{{ appName }}' => 'Example']);
     $assert($renderer->render('landing', 'de-DE') === 'Site Example');
     $assert($renderer->render('landing', 'en-US') === 'Default Example');
+});
+
+$test('FTP secrets configuration overrides site configuration', function () use ($temporaryRoot, $assert): void {
+    $root = $temporaryRoot . '/config-layering';
+    mkdir($root . '/config', 0700, true);
+    copy(dirname(__DIR__) . '/config/defaults.php', $root . '/config/defaults.php');
+    file_put_contents(
+        $root . '/config/site.php',
+        "<?php\nreturn ['app' => ['name' => 'Site'], 'openrouter' => ['api_key' => null]];\n"
+    );
+    file_put_contents(
+        $root . '/config/secrets.php',
+        "<?php\nreturn ['openrouter' => ['api_key' => 'local-secret']];\n"
+    );
+
+    $config = ConfigLoader::load($root);
+    $assert($config['app']['name'] === 'Site');
+    $assert($config['openrouter']['api_key'] === 'local-secret');
 });
 
 $test('legacy migration creates protected copies without changing originals', function () use ($temporaryRoot, $assert): void {
