@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexiList - Einfache Listenverwaltung</title>
+    <link rel="icon" href="/helm.png">
+    <link rel="apple-touch-icon" href="/helm.png">
+    <meta name="apple-mobile-web-app-title" content="FlexiList">
+    <meta name="application-name" content="FlexiList">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 { color: #2c3e50; margin-bottom: 30px; }
+        ul { margin: 20px 0; padding-left: 20px; }
+        li { margin: 8px 0; }
+        .example-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .example-grid li {
+            list-style: none;
+            margin: 0;
+        }
+        a { 
+            color: #3498db; 
+            text-decoration: none; 
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 4px;
+        }
+        a:hover { background: #e9ecef; }
+        .advantages {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .advantages h3 { margin-top: 0; color: #2c3e50; }
+        .advantages ul { margin-bottom: 0; }
+        .advantages ul ul { margin-top: 5px; padding-left: 20px; }
+        .footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            font-size: 0.9rem;
+        }
+        .footer a { 
+            background: none;
+            padding: 0 8px;
+            margin: 0 4px;
+        }
+    </style>
+</head>
+<body>
+    <h2>
+        <img src="/helm.png" alt="FlexiList" width="32" height="32" style="vertical-align: text-top; margin-right: 8px;">FlexiList: intelligente Einkaufs-, Pack-, ToDo-Listen
+    </h2>
+
+    <div class="private-notice" style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; border-radius: 5px;">
+        <h3 style="margin-top: 0; color: #856404;">⚠️ Privates Angebot</h3>
+        <p><strong>Dieser Service ist ein rein privates, nicht-gewerbliches Angebot 
+        ohne Gewinnerzielungsabsicht.</strong></p>
+        
+        <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Nutzung nur für Familie und Bekanntenkreis des Betreibers</li>
+            <li>Kein professioneller Service oder Support</li>
+            <li>Keine Garantien oder Gewährleistung</li>
+            <li>Nutzung erfolgt auf eigene Gefahr</li>
+            <li>Service kann jederzeit ohne Vorankündigung eingestellt werden, Sie sind für Datensicherung selbst verantwortlich.</li>
+        </ul>
+        
+        <p><strong>Es wird kein Vertragsverhältnis begründet.</strong></p>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" onclick="createRandomList(); return false;">✅ Neue Liste erstellen</a>
+    </div>
+
+    <div class="advantages">
+        <h3>Informationen</h3>
+        <ul>
+            <li><b>Privatsphäre</b></li>
+            <ul>
+                <li>Keine App-Installation nötig - funktioniert überall im Browser</li>
+                <li>Keine Anmeldung, Login oder persönliche Daten erforderlich, nur der Link (mit Key) wird zum Zugreifen und Teilen benötigt <br><b>Liste daher unbedingt bookmarken</b></li>
+            </ul>
+            <li><b>Funktionen</b></li>
+            <ul>
+                <li>eigene Kategorien, die angeordnet werden koennen</li>
+                <li>Automatisches Einordnen von Einträgen in Kategorien</li>
+                <li>Erweiterte Features auch in mobiler Ansicht durch Kippen des Telefons</li>
+        </ul>
+    </div>
+    <div class="advantages">
+    <h3>Beispiele</h3>
+        <ul class="example-grid">
+            <li><a href="/app?key=demoeinkaufsliste">🛒 Einkaufsliste</a></li>
+            <li><a href="/app?key=demokofferpacken">🧳 Koffer packen</a></li>
+            <li><a href="/app?key=demohausarbeiten">🏠 Hausarbeiten</a></li>
+            <li><a href="/app?key=demourlaubsplanung">✈️ Urlaubsplanung</a></li>
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <a href="/">Start</a> |
+        <a href="/guide">Anleitung</a> |
+        <a href="/impressum">Impressum</a> |
+        <a href="/datenschutz">Datenschutz</a> |
+        <a href="/nutzungsbedingungen">AGB</a>
+    </div>
+
+    <script>
+        function createRandomList() {
+            // Generate random 16-character alphanumeric key
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let randomKey = '';
+            for (let i = 0; i < 16; i++) {
+                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            // Debug: log the generated key
+            console.log('Generated random key:', randomKey);
+            
+            // Redirect to new list
+            window.location.href = '/app?key=' + randomKey;
+        }
+    </script>
+</body>
+</html>

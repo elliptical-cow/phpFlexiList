@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#007bff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>{{ listTitle }} (FlexiList)</title>
+    <link rel="icon" href="/checklist.png"">
+    <link rel="apple-touch-icon" href="/checklist.png">
+    <meta name="apple-mobile-web-app-title" content="FlexiList">
+    <meta name="application-name" content="FlexiList">
+    <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    <script>
+    // Dynamic library loading with error handling and fallbacks
+    (function() {
+        const isDebugMode = window.FLEXI_CONFIG && window.FLEXI_CONFIG.FEATURES && window.FLEXI_CONFIG.FEATURES.DEBUG_MODE;
+        const vueVersion = '3.4.21'; // Pinned version for stability
+        
+        // Loading timeout in milliseconds
+        const LOAD_TIMEOUT = 10000;
+        
+        // Show loading status
+        function showLoadingError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#f8d7da;color:#721c24;padding:20px;border-radius:8px;border:1px solid #f5c6cb;z-index:10000;font-family:Arial,sans-serif;max-width:400px;text-align:center;';
+            errorDiv.innerHTML = '<h3>Loading Error</h3><p>' + message + '</p><button onclick="location.reload()" style="background:#007bff;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">Reload Page</button>';
+            document.body.appendChild(errorDiv);
+        }
+        
+        // Load script with timeout and error handling
+        function loadScript(url, fallbackUrls, onSuccess, onError) {
+            let timeoutId;
+            let currentUrlIndex = 0;
+            const urls = [url, ...fallbackUrls];
+            
+            function tryLoadScript() {
+                if (currentUrlIndex >= urls.length) {
+                    onError('All CDN sources failed to load');
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                const currentUrl = urls[currentUrlIndex];
+                
+                // Clear any existing timeout
+                if (timeoutId) clearTimeout(timeoutId);
+                
+                // Set timeout for loading
+                timeoutId = setTimeout(() => {
+                    script.onerror = null;
+                    script.onload = null;
+                    currentUrlIndex++;
+                    console.warn('Script load timeout for:', currentUrl);
+                    tryLoadScript();
+                }, LOAD_TIMEOUT);
+                
+                script.onload = function() {
+                    clearTimeout(timeoutId);
+                    onSuccess();
+                };
+                
+                script.onerror = function() {
+                    clearTimeout(timeoutId);
+                    currentUrlIndex++;
+                    console.warn('Script load error for:', currentUrl);
+                    tryLoadScript();
+                };
+                
+                script.src = currentUrl;
+                document.head.appendChild(script);
+            }
+            
+            tryLoadScript();
+        }
+        
+        // Vue.js URLs with fallbacks
+        const vueUrls = isDebugMode 
+            ? [
+                'https://unpkg.com/vue@' + vueVersion + '/dist/vue.global.js',
+                'https://cdn.jsdelivr.net/npm/vue@' + vueVersion + '/dist/vue.global.js'
+              ]
+            : [
+                'https://unpkg.com/vue@' + vueVersion + '/dist/vue.global.prod.js',
+                'https://cdn.jsdelivr.net/npm/vue@' + vueVersion + '/dist/vue.global.prod.js'
+              ];
+        
+        // fast-json-patch URLs with fallbacks
+        const jsonPatchUrls = isDebugMode
+            ? [
+                'https://cdn.jsdelivr.net/npm/fast-json-patch@3.1.1/dist/fast-json-patch.js',
+                'https://unpkg.com/fast-json-patch@3.1.1/dist/fast-json-patch.js'
+              ]
+            : [
+                'https://cdn.jsdelivr.net/npm/fast-json-patch@3.1.1/dist/fast-json-patch.min.js',
+                'https://unpkg.com/fast-json-patch@3.1.1/dist/fast-json-patch.min.js'
+              ];
+        
+        // Load Vue.js first
+        loadScript(
+            vueUrls[0], 
+            vueUrls.slice(1),
+            function() {
+                // Vue loaded successfully, now load json-patch
+                loadScript(
+                    jsonPatchUrls[0],
+                    jsonPatchUrls.slice(1),
+                    function() {
+                        // Both libraries loaded successfully
+                        window.CORE_LIBRARIES_LOADED = true;
+                        document.dispatchEvent(new CustomEvent('coreLibrariesReady'));
+                    },
+                    function(error) {
+                        showLoadingError('Failed to load JSON Patch library. Please check your internet connection.');
+                        console.error('JSON Patch loading failed:', error);
+                    }
+                );
+            },
+            function(error) {
+                showLoadingError('Failed to load Vue.js framework. Please check your internet connection.');
+                console.error('Vue.js loading failed:', error);
+            }
+        );
+    })();
+    </script>
+    <script src="services/BackendService.js"></script>
+    <script src="utils/jsonOperations.js"></script>
+    <script src="utils/checklistOperations.js"></script>
+    <script src="utils/backendOperations.js"></script>
+    <script src="components/AutoCompleteInput.js"></script>
+    <script src="components/MoveModal.js"></script>
+    <script src="components/ListItem.js"></script>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div id="app-loading" class="app-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading FlexiList...</div>
+        <div class="loading-subtext">Please wait while we load the application</div>
+    </div>
+
+    <div id="app" v-cloak class="app-fade-in">
+      
+        <div class="checklist-section">
+            <div class="checklist-header">
+                <h2 v-if="!isEditingTitle" 
+                    @click="startEditingTitle"
+                    class="editable-title"
+                    :title="'Click to edit title'"
+                    role="button"
+                    tabindex="0"
+                    @keydown.enter="startEditingTitle"
+                    @keydown.space.prevent="startEditingTitle">{{ listTitle }} (FlexiList)</h2>
+                <input v-else
+                       ref="titleInput"
+                       v-model="listTitle"
+                       @blur="finishEditingTitle"
+                       @keyup.enter="finishEditingTitle"
+                       @keyup.escape="cancelEditingTitle"
+                       class="title-input"
+                       :aria-label="'Edit list title'"
+                       type="text">
+                <!-- Main Actions Dropdown -->
+                <div class="main-actions-dropdown" @click.stop>
+                    <button class="main-actions-toggle" 
+                            @click="toggleMainActions"
+                            :aria-label="'Checklist actions'"
+                            :aria-expanded="showMainActions">
+                        ⋯
+                    </button>
+                    <div v-show="showMainActions" class="main-actions-menu" @click.stop>
+                        <button v-if="backendMode" @click="autoCategorize" :disabled="isAutoCategorizing" class="main-action-item" :class="{ 'disabled': isAutoCategorizing }">
+                            🤖 {{ isAutoCategorizing ? 'Categorizing...' : 'Auto-categorize' }}
+                        </button>
+                        <button @click="addRootItem('Category')" class="main-action-item">
+                            ➕ New Category
+                        </button>
+                        <div class="menu-separator"></div>
+                        <button @click="hideCheckedItems = !hideCheckedItems" class="main-action-item">
+                            {{ hideCheckedItems ? '👁️ Show checked items' : '🙈 Hide checked items' }}
+                        </button>
+                        <button @click="showNoteEditor = !showNoteEditor" class="main-action-item">
+                            {{ showNoteEditor ? '📝 Hide Note Editor' : '📝 Show Note Editor' }}
+                        </button>
+                        <button @click="uncheckAllItems" class="main-action-item">
+                            ↻ Uncheck All
+                        </button>
+                        <button @click="removeDuplicates" class="main-action-item">
+                            🗂️ Remove Duplicates
+                        </button>                       
+                        <div class="menu-separator"></div>
+                        <button @click="exportChecklist" class="main-action-item">
+                            📥 Download Checklist
+                        </button>
+                        <button v-if="backendMode" @click="copyListLink" class="main-action-item">
+                            🔗 Copy/Share List Link
+                        </button>
+                        <div class="menu-separator"></div>                        
+                        <button v-if="backendMode" @click="saveAsNewList" :disabled="isSavingNewList" class="main-action-item" :class="{ 'disabled': isSavingNewList }">
+                            💾 {{ isSavingNewList ? 'Saving...' : 'Save as New List' }}
+                        </button>
+                        <button v-if="backendMode" @click="startNewList" :disabled="isCreatingNewList" class="main-action-item" :class="{ 'disabled': isCreatingNewList }">
+                            📋 {{ isCreatingNewList ? 'Creating...' : 'Start New List' }}
+                        </button>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+            <!-- Debug Controls -->
+            <div v-if="backendMode && showPatchDebug" class="debug-controls" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                <label>
+                    <input type="checkbox" v-model="patchDebug" @change="togglePatchDebug()"> 
+                    Debug Patches
+                </label>
+                <small style="display: block; color: #666; margin-top: 5px;">
+                    Shows patch operations in browser console
+                </small>
+                <div v-if="patchStats.patchCount > 0" style="margin-top: 5px; font-size: 12px; color: #666;">
+                    Patches: {{ patchStats.patchCount }} | Fallbacks: {{ patchStats.fallbackCount }} | Saved: {{ Math.round(patchStats.totalBytesSaved / 1024 * 10) / 10 }}KB
+                </div>
+            </div>
+            
+            <div class="list-container"
+                 :class="{ 'drag-over-root': draggedItem && isDragOverRoot }"
+                 @dragover="handleRootDragOver"
+                 @dragenter="handleRootDragEnter"
+                 @dragleave="handleRootDragLeave"
+                 @drop="handleRootDrop"
+                 role="list"
+                 aria-label="Checklist items">
+                <list-item v-for="(item, index) in filteredChecklist"
+                           :key="item.Name + index"
+                           :item="item"
+                           :depth="0"
+                           :parent-path="''"
+                           @update:item="handleItemUpdate"
+                           @delete-item="deleteItemByReference(item)"
+                           @add-item="addItem($event.parentItem, $event.type)"
+                           @move-item="moveItemByReference(item, $event)">
+                </list-item>
+                
+                <!-- Root Level Placeholder -->
+                <div class="placeholder-item" 
+                     @click="addRootItemFromPlaceholder"
+                     role="button"
+                     tabindex="0"
+                     @keydown.enter="addRootItemFromPlaceholder"
+                     @keydown.space.prevent="addRootItemFromPlaceholder"
+                     aria-label="Add new item to checklist">
+                    <div class="placeholder-content">
+                        <span class="placeholder-icon">+</span>
+                        <span class="placeholder-text">Add new item</span>
+                    </div>
+                </div>
+                
+                <div v-if="draggedItem" class="root-drop-zone" aria-live="polite">
+                    Drop here to move to root level
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Move Modal -->
+        <move-modal :show="showMoveModal" 
+                    :item-to-move="itemToMove" 
+                    :checklist="checklist"
+                    @close="closeMoveModal"
+                    @move-to-category="moveToCategory">
+        </move-modal>
+
+        <!-- AI Consent Dialog -->
+        <div v-if="showKIConsentDialog" class="modal-overlay" @click.self="cancelKIConsent()">
+            <div class="modal-content ki-consent-modal">
+                <div class="modal-header">
+                    <h3>⚠️ AI Data Processing - Consent Required</h3>
+                    <button class="close-btn" @click="cancelKIConsent()">×</button>
+                </div>
+                
+                <div class="modal-content">
+                    <div class="warning-box">
+                        <h4>🚨 Privacy Risks with AI Usage</h4>
+                        <p><strong>IMPORTANT: Auto-categorization uses external AI services with increased privacy risks.</strong></p>
+                    </div>
+                    
+                    <div class="data-flow-info">
+                        <h4>📊 Data Transfer:</h4>
+                        <div class="data-flow">
+                            <span class="flow-step">FlexiList</span>
+                            <span class="arrow">→</span>
+                            <span class="flow-step">OpenRouter (USA)</span>
+                            <span class="arrow">→</span>
+                            <span class="flow-step">Google Gemini (USA)</span>
+                        </div>
+                        <p><strong>Transferred data:</strong> Your list entries and categories for automatic assignment</p>
+                    </div>
+                    
+                    <div class="risks-info">
+                        <h4>⚠️ Legal Risks:</h4>
+                        <ul>
+                            <li><strong>Third-country transfer:</strong> Data is transferred to the USA</li>
+                            <li><strong>No data processing agreement:</strong> OpenRouter offers no formal DPA</li>
+                            <li><strong>Possible storage:</strong> Your data might be stored or used for training</li>
+                            <li><strong>GDPR risk:</strong> Possible fines for data protection violations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="consent-checkbox">
+                        <label>
+                            <input type="checkbox" v-model="kiConsentGiven" id="ki-consent-checkbox">
+                            <strong>I am informed about the risks and consent to data transfer.</strong>
+                        </label>
+                        <p class="consent-note">This consent is stored in your browser for 28 days for convenience and expires automatically.</p>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-secondary" @click="cancelKIConsent()">Cancel</button>
+                    <button class="btn-primary" 
+                            @click="proceedWithAutoCategorize()" 
+                            :disabled="!kiConsentGiven"
+                            :class="{ 'disabled': !kiConsentGiven }">
+                        Start AI Categorization
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- JSON Reference (show in backend mode, read-only) -->
+        <div v-if="backendMode && showJsonView" class="json-reference">
+            <details>
+                <summary>JSON View (reference only)</summary>
+                <textarea v-model="jsonInput" readonly placeholder="JSON will be updated automatically..."></textarea>
+            </details>
+        </div>
+
+         <!-- Backend Status -->
+        <div v-if="backendMode && showPatchDebug" class="backend-status" role="status" aria-live="polite">
+        <div class="status-info">
+            <span class="list-id" aria-label="Shareable link">Link: http://localhost:8080/app?key={{ listId }}</span>
+            <span v-if="saveStatus" class="save-status" :class="{ 'error': saveStatus.includes('Error'), 'loading': isLoading }" aria-live="assertive">
+                {{ saveStatus }}
+            </span>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <a href="/" class="footer-link">Start</a>
+                <a href="/guide" class="footer-link">Guide</a>
+                <a href="/impressum" class="footer-link">Impressum</a>
+                <a href="/datenschutz" class="footer-link">Privacy</a>
+                <a href="/nutzungsbedingungen" class="footer-link">Terms</a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+    // Global loading state management
+    window.APP_LOADING_STATE = {
+        librariesLoaded: false,
+        appMounted: false,
+        loadingElement: null
+    };
+    
+    // Hide loading overlay when app is ready
+    function hideLoadingOverlay() {
+        const loadingEl = document.getElementById('app-loading');
+        if (loadingEl) {
+            loadingEl.style.opacity = '0';
+            loadingEl.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(() => {
+                if (loadingEl.parentNode) {
+                    loadingEl.parentNode.removeChild(loadingEl);
+                }
+            }, 300);
+        }
+    }
+    
+    // Check if we can hide loading (both libraries loaded and app mounted)
+    function checkReadyState() {
+        if (window.APP_LOADING_STATE.librariesLoaded && window.APP_LOADING_STATE.appMounted) {
+            hideLoadingOverlay();
+        }
+    }
+    
+    // Wait for core libraries before loading app
+    function loadApp() {
+        if (window.CORE_LIBRARIES_LOADED) {
+            // Libraries already loaded, load app immediately
+            window.APP_LOADING_STATE.librariesLoaded = true;
+            const appScript = document.createElement('script');
+            appScript.src = 'app.js';
+            appScript.onload = function() {
+                // App script loaded, Vue will mount and signal ready
+            };
+            appScript.onerror = function() {
+                console.error('Failed to load app.js');
+                const loadingText = document.querySelector('.loading-text');
+                if (loadingText) {
+                    loadingText.textContent = 'Failed to load application';
+                    loadingText.style.color = '#dc3545';
+                }
+            };
+            document.head.appendChild(appScript);
+        } else {
+            // Wait for libraries to load
+            document.addEventListener('coreLibrariesReady', function() {
+                window.APP_LOADING_STATE.librariesLoaded = true;
+                const appScript = document.createElement('script');
+                appScript.src = 'app.js';
+                appScript.onload = function() {
+                    // App script loaded, Vue will mount and signal ready
+                };
+                appScript.onerror = function() {
+                    console.error('Failed to load app.js');
+                    const loadingText = document.querySelector('.loading-text');
+                    if (loadingText) {
+                        loadingText.textContent = 'Failed to load application';
+                        loadingText.style.color = '#dc3545';
+                    }
+                };
+                document.head.appendChild(appScript);
+            }, { once: true });
+        }
+    }
+    
+    // Listen for Vue app mounted event
+    document.addEventListener('appMounted', function() {
+        window.APP_LOADING_STATE.appMounted = true;
+        checkReadyState();
+    }, { once: true });
+    
+    // Load app when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadApp);
+    } else {
+        loadApp();
+    }
+    </script>
+
+           
+</body>
+</html>

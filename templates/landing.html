@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlexiList - Simple Smart Lists</title>
+    <link rel="icon" href="/helm.png">
+    <link rel="apple-touch-icon" href="/helm.png">
+    <meta name="apple-mobile-web-app-title" content="FlexiList">
+    <meta name="application-name" content="FlexiList">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 { color: #2c3e50; margin-bottom: 30px; }
+        ul { margin: 20px 0; padding-left: 20px; }
+        li { margin: 8px 0; }
+        a { 
+            color: #3498db; 
+            text-decoration: none; 
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 4px;
+        }
+        a:hover { background: #e9ecef; }
+        .advantages {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .advantages h3 { margin-top: 0; color: #2c3e50; }
+        .advantages ul { margin-bottom: 0; }
+        .advantages ul ul { margin-top: 5px; padding-left: 20px; }
+        .example-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .example-grid li {
+            list-style: none;
+            margin: 0;
+        }
+        .footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            font-size: 0.9rem;
+        }
+        .footer a { 
+            background: none;
+            padding: 0 8px;
+            margin: 0 4px;
+        }
+    </style>
+</head>
+<body>
+    <h2>
+        <img src="/helm.png" alt="FlexiList" width="32" height="32" style="vertical-align: text-top; margin-right: 8px;">
+        FlexiList: intelligent shopping-, packing-, todo-lists
+    </h2>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="#" onclick="createRandomList(); return false;">✅ Create New List</a>
+    </div>
+
+    <div class="advantages">
+        <h3>Benefits</h3>
+        <ul>
+            <li><b>Privacy</b></li>
+            <ul>
+                <li>No app installation needed - works everywhere in browser</li>
+                <li>No registration, login or personal data required, only the link (with key) needed to access and share <br><b>Make sure to bookmark the list</b></li>
+            </ul>
+            <li><b>Features</b></li>
+            <ul>
+                <li>custom categories that can be arranged</li>
+                <li>automatic categorization of entries</li>
+            </ul>
+        </ul>
+    </div>
+    <div class="advantages">
+    <h3>Examples</h3>
+        <ul class="example-grid">
+            <li><a href="/app?key=demogroceries">🛒 Groceries</a></li>
+            <li><a href="/app?key=demopacking">🧳 Packing</a></li>
+            <li><a href="/app?key=demohousework">🏠 Housework</a></li>
+            <li><a href="/app?key=demovacation">✈️ Vacation</a></li>
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <a href="/">Start</a> |
+        <a href="/guide">Guide</a> |
+        <a href="/impressum">Impressum</a> |
+        <a href="/datenschutz">Privacy</a> |
+        <a href="/nutzungsbedingungen">Terms</a>
+    </div>
+
+    <script>
+        function createRandomList() {
+            // Generate random 16-character alphanumeric key
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let randomKey = '';
+            for (let i = 0; i < 16; i++) {
+                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            // Debug: log the generated key
+            console.log('Generated random key:', randomKey);
+            
+            // Redirect to new list
+            window.location.href = '/app?key=' + randomKey;
+        }
+    </script>
+</body>
+</html>

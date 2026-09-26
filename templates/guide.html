@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title>User Guide - FlexiList</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #f6f8f9 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 40px 20px; 
+        }
+        .back-btn {
+            background: #a6bad0;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border: 2px solid #a6bad0;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #7f95ab;
+            border-color: #7f95ab;
+            transform: translateY(-2px);
+        }
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #34495e;
+            margin: 0 0 30px 0;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            margin: 30px 0 15px 0;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #a6bad0;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #a6bad0;
+            margin: 20px 0 10px 0;
+            font-size: 1.2rem;
+        }
+        p {
+            color: #666;
+            margin: 0 0 15px 0;
+        }
+        .feature-box {
+            background: #f6f8f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #a6bad0;
+        }
+        .feature-box h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
+        .step-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .step-list ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .step-list li {
+            margin: 8px 0;
+            color: #495057;
+        }
+        .tip {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+        .tip strong {
+            color: #28a745;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .warning strong {
+            color: #856404;
+        }
+        .keyboard-key {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            border: 1px solid #adb5bd;
+        }
+        .url-example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+            color: #495057;
+            border-left: 4px solid #a6bad0;
+            margin: 15px 0;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px; }
+            .content { padding: 25px; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+        
+        <div class="content">
+            <h1>📋 FlexiList User Guide</h1>
+            
+            <h2>🚀 Getting Started</h2>
+            
+            <h3>Create New List</h3>
+            <div class="step-list">
+                <ol>
+                    <li>Click <strong>"✅ Create New List"</strong> on the homepage</li>
+                    <li>A random 16-character key is automatically generated</li>
+                    <li>You are redirected directly to the new list</li>
+                    <li>Bookmark the URL - this is your permanent list link</li>
+                    <li>Share the URL with others for collaboration</li>
+                </ol>
+            </div>
+            
+            <div class="url-example">
+                <strong>URL Format:</strong><br>
+                <code>/app?key=a8k2m9p3x7j5n1q6</code> (randomly generated)
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Keys should NOT be chosen by users - they are automatically randomly generated for maximum security. <br><b>Anyone who knows the link can edit the list</b>
+            </div>
+            
+            <div class="tip">
+                <strong>💡 Tip:</strong> No signup required! Your list URL is your only access key.
+            </div>
+            
+            <h2>✏️ Basic Functions</h2>
+            
+            <div class="feature-box">
+                <h3>➕ Add Entries</h3>
+                <p>Click <strong>"+ New Entry"</strong> at the end of the list or in categories.</p>
+            </div>
+            
+            <div class="feature-box">
+                <h3>✏️ Edit Text</h3>
+                <p>Click on titles or entries to edit. <span class="keyboard-key">Enter</span> = Save, <span class="keyboard-key">Esc</span> = Cancel.</p>
+            </div>
+            
+            <div class="feature-box">
+                <h3>✅ Check Off</h3>
+                <p>Click checkbox = Mark as done. Via ⋯-menu completed entries can be hidden.</p>
+            </div>
+            
+            <div class="feature-box">
+                <h3>📝 Change List Title</h3>
+                <p>Click on the list title at the top to give your list a custom name. (A good title also helps the AI with categorization.)</p>
+            </div>
+            
+            <div class="feature-box">
+                <h3>🗂️ Create Categories</h3>
+                <p>Via ⋯-menu → <strong>"➕ New Category"</strong>. Unlimited nesting possible.</p>
+            </div>
+            
+            
+            <h2>📁 Organization with Categories</h2>
+            
+            <h3>Creating Categories</h3>
+            <div class="step-list">
+                <ol>
+                    <li>Click <strong>"➕ New Category"</strong></li>
+                    <li>Name your category (e.g. "Groceries", "Work Tasks")</li>
+                    <li>Add items into the category</li>
+                    <li>Create unlimited nested sub-categories</li>
+                </ol>
+            </div>
+            
+            <h3>Category Functions</h3>
+            <p>• <strong>Expand/Collapse:</strong> Click the triangle (▼/▶) to show/hide category contents<br>
+            • <strong>Drag & Drop:</strong> Drag items between categories to reorganize<br>
+            • <strong>Nested Structure:</strong> Create categories inside categories for complex organization</p>
+            
+            
+            <h2>🤖 AI Auto-Categorization</h2>
+            
+            <div class="feature-box">
+                <h3>Automatic Organization</h3>
+                <p>⋯-menu → <strong>"🤖 Auto-categorize"</strong> lets AI automatically organize your entries into meaningful categories.</p>
+            </div>
+            
+            <div class="step-list">
+                <strong>How it works:</strong>
+                <ol>
+                    <li>Enter at least 5 entries in the list</li>
+                    <li>⋯-menu → "🤖 Auto-categorize" click</li>
+                    <li>AI creates appropriate categories and assigns entries</li>
+                </ol>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ Privacy:</strong> List contents are sent via OpenRouter to Google Gemini (USA). Your consent is stored for 28 days and expires automatically.
+            </div>
+            
+            <h2>📱 Mobile Usage</h2>
+            
+            <div class="feature-box">
+                <h3>Smartphone-optimized</h3>
+                <p>• Works directly in browser (no app needed)<br>
+                • Touch-optimized buttons and controls<br>
+                • Phone landscape mode shows extended controls</p>
+            </div>
+            
+            <div class="tip">
+                <strong>📱 Tip:</strong> Save list as bookmark or add to home screen for quick access!
+            </div>
+            
+            <h2>🔄 Share Lists</h2>
+            
+            <div class="feature-box">
+                <h3>Simple Sharing</h3>
+                <p>⋯-menu → <strong>"🔗 Copy link/share"</strong> copies the list URL.</p>
+                <p>Shared lists automatically sync in real-time between all users.</p>
+            </div>
+            
+            <div class="warning">
+                <strong>🔐 Security:</strong> Anyone with the URL can edit the list. Keep URLs confidential!
+            </div>
+            
+            <h2>⚙️ More Functions</h2>
+            
+            <div class="feature-box">
+                <h3>⋯-Menu (Actions)</h3>
+                <p><strong>🤖 Auto-categorize:</strong> AI organizes entries automatically<br>
+                <strong>➕ New Category:</strong> Create new main category<br>
+                <strong>👁️ Hide completed:</strong> Hide checked entries<br>
+                <strong>🔗 Copy link:</strong> Copy URL for sharing<br>
+                <strong>📥 Download list:</strong> JSON export of the list<br>
+                <strong>💾 Save as new list:</strong> Copy with new key</p>
+            </div>
+            
+            <div class="feature-box">
+                <h3>🖱️ Drag & Drop</h3>
+                <p>Move entries and categories via drag & drop between and within categories.</p>
+            </div>
+            
+            <h2>🔒 Privacy</h2>
+            
+            <div class="feature-box">
+                <h3>Maximum Privacy</h3>
+                <p>• No registration or personal data required<br>
+                • No tracking or monitoring<br>
+                • Your lists are only accessible via the secret key<br>
+                • Data belongs solely to you</p>
+            </div>
+            
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Make sure to bookmark the list URL! Without the URL, the list cannot be found.
+            </div>
+            
+            
+            <h2>💡 Important Tips</h2>
+            
+            <div class="feature-box">
+                <h3>Best Practices</h3>
+                <p><strong>📚 Bookmark list URL</strong> - Without URL, list is gone!<br>
+                <strong>🗂️ Use categories</strong> - For better organization<br>
+                <strong>🤖 Test auto-categorization</strong> - With 5+ entries<br>
+                <strong>🔐 Don't share URLs publicly</strong> - Only with trusted people<br>
+                <strong>📱 Mobile in landscape</strong> - More functions visible</p>
+            </div>
+            
+            <div class="tip">
+                <strong>🚀 Let's go!</strong> You now know all the important functions of FlexiList. Create your first list and organize your daily life!
+            </div>
+        </div>
+        
+        <footer style="text-align: center; margin-top: 40px; padding: 20px; color: #666;">
+            <a href="/" style="color: #666; text-decoration: none; font-size: 0.9rem;">Start</a> | 
+            <a href="/guide" style="color: #666; text-decoration: none; font-size: 0.9rem;">Guide</a> | 
+            <a href="/impressum" style="color: #666; text-decoration: none; font-size: 0.9rem;">Impressum</a> |
+            <a href="/datenschutz" style="color: #666; text-decoration: none; font-size: 0.9rem;">Privacy</a> |
+            <a href="/nutzungsbedingungen" style="color: #666; text-decoration: none; font-size: 0.9rem;">Terms</a>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "flexilist/flexilist",
+  "description": "A self-hosted, collaborative checklist application",
+  "type": "project",
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "FlexiList\\": "src/"
+    }
+  },
+  "scripts": {
+    "lint": "@php tools/lint.php",
+    "test": "@php tests/run.php",
+    "check": [
+      "@lint",
+      "@test"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
+

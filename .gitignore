@@ -1,0 +1,13 @@
+/vendor/
+/node_modules/
+/data/*.json
+/var/
+/.env
+/config/site.php
+/config/secrets.php
+/*.log
+/.DS_Store
+/.idea/
+/.vscode/
+/.playwright-mcp/
+

@@ -1,0 +1,14 @@
+# FlexiList - Public directory routing
+
+RewriteEngine On
+
+# Disable content negotiation to prevent Apache from serving app.js when requesting /app
+Options -MultiViews
+
+# Explicitly force /app requests to index.php (prevent content negotiation)
+RewriteRule ^app/?$ index.php [QSA,L]
+
+# Route all other requests to index.php (except existing files/directories)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
