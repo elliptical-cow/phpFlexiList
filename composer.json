@@ -1,7 +1,7 @@
 {
   "name": "flexilist/flexilist",
   "description": "A self-hosted, collaborative checklist application",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "project",
   "require": {
     "php": ">=8.1",

@@ -10,5 +10,4 @@ Contributions are welcome through focused pull requests.
 5. Explain security, privacy, and compatibility effects in the pull request.
 
 Never commit production data or credentials. By contributing, you agree that
-your contribution is licensed under the repository's MIT license.
-
+your contribution is licensed under the repository's Apache License 2.0.

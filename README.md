@@ -64,5 +64,6 @@ Please report vulnerabilities according to [SECURITY.md](SECURITY.md).
 
 ## License
 
-FlexiList is available under the [MIT License](LICENSE). Bundled third-party
-licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+FlexiList is available under the [Apache License 2.0](LICENSE). Bundled
+third-party licenses are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
