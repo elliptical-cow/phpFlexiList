@@ -15,13 +15,14 @@
   "scripts": {
     "lint": "@php tools/lint.php",
     "test": "@php tests/run.php",
+    "verify-vendor": "@php tools/verify_vendor.php",
     "check": [
       "@lint",
-      "@test"
+      "@test",
+      "@verify-vendor"
     ]
   },
   "config": {
     "sort-packages": true
   }
 }
-

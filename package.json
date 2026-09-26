@@ -1,0 +1,12 @@
+{
+  "name": "flexilist",
+  "private": true,
+  "scripts": {
+    "check": "node --check assets/app.js && node --check assets/services/BackendService.js && node --test tests/frontend.mjs",
+    "test": "node --test tests/frontend.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+
