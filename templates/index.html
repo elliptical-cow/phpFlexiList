@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="theme-color" content="#007bff">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>{{ listTitle }} (FlexiList)</title>
-    <link rel="icon" href="/checklist.png"">
-    <link rel="apple-touch-icon" href="/checklist.png">
-    <meta name="apple-mobile-web-app-title" content="FlexiList">
-    <meta name="application-name" content="FlexiList">
+    <title>{{ listTitle }} ({{ appName }})</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>📋</text></svg>">
+
+    <meta name="apple-mobile-web-app-title" content="{{ appName }}">
+    <meta name="application-name" content="{{ appName }}">
     <link rel="stylesheet" href="style.css">
     <script src="config.js"></script>
     <script>
@@ -136,7 +136,7 @@
     <!-- Loading overlay -->
     <div id="app-loading" class="app-loading">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Loading FlexiList...</div>
+        <div class="loading-text">Loading {{ appName }}...</div>
         <div class="loading-subtext">Please wait while we load the application</div>
     </div>
 
@@ -151,7 +151,7 @@
                     role="button"
                     tabindex="0"
                     @keydown.enter="startEditingTitle"
-                    @keydown.space.prevent="startEditingTitle">{{ listTitle }} (FlexiList)</h2>
+                    @keydown.space.prevent="startEditingTitle">{{ listTitle }} ({{ appName }})</h2>
                 <input v-else
                        ref="titleInput"
                        v-model="listTitle"
@@ -170,7 +170,7 @@
                         ⋯
                     </button>
                     <div v-show="showMainActions" class="main-actions-menu" @click.stop>
-                        <button v-if="backendMode" @click="autoCategorize" :disabled="isAutoCategorizing" class="main-action-item" :class="{ 'disabled': isAutoCategorizing }">
+                        <button v-if="backendMode && autoCategorizationEnabled" @click="autoCategorize" :disabled="isAutoCategorizing" class="main-action-item" :class="{ 'disabled': isAutoCategorizing }">
                             🤖 {{ isAutoCategorizing ? 'Categorizing...' : 'Auto-categorize' }}
                         </button>
                         <button @click="addRootItem('Category')" class="main-action-item">
@@ -288,22 +288,19 @@
                     <div class="data-flow-info">
                         <h4>📊 Data Transfer:</h4>
                         <div class="data-flow">
-                            <span class="flow-step">FlexiList</span>
+                            <span class="flow-step">{{ appName }}</span>
                             <span class="arrow">→</span>
-                            <span class="flow-step">OpenRouter (USA)</span>
-                            <span class="arrow">→</span>
-                            <span class="flow-step">Google Gemini (USA)</span>
+                            <span class="flow-step">Configured AI provider</span>
                         </div>
                         <p><strong>Transferred data:</strong> Your list entries and categories for automatic assignment</p>
                     </div>
                     
                     <div class="risks-info">
-                        <h4>⚠️ Legal Risks:</h4>
+                        <h4>⚠️ Things to consider:</h4>
                         <ul>
-                            <li><strong>Third-country transfer:</strong> Data is transferred to the USA</li>
-                            <li><strong>No data processing agreement:</strong> OpenRouter offers no formal DPA</li>
-                            <li><strong>Possible storage:</strong> Your data might be stored or used for training</li>
-                            <li><strong>GDPR risk:</strong> Possible fines for data protection violations</li>
+                            <li>Your deployment chooses the AI provider and model.</li>
+                            <li>Provider retention and processing rules may differ.</li>
+                            <li>Do not submit sensitive list contents without reviewing those rules.</li>
                         </ul>
                     </div>
                     
@@ -339,7 +336,7 @@
          <!-- Backend Status -->
         <div v-if="backendMode && showPatchDebug" class="backend-status" role="status" aria-live="polite">
         <div class="status-info">
-            <span class="list-id" aria-label="Shareable link">Link: http://localhost:8080/app?key={{ listId }}</span>
+            <span class="list-id" aria-label="Shareable link">List ID: {{ listId }}</span>
             <span v-if="saveStatus" class="save-status" :class="{ 'error': saveStatus.includes('Error'), 'loading': isLoading }" aria-live="assertive">
                 {{ saveStatus }}
             </span>
@@ -351,9 +348,6 @@
             <div class="footer-content">
                 <a href="/" class="footer-link">Start</a>
                 <a href="/guide" class="footer-link">Guide</a>
-                <a href="/impressum" class="footer-link">Impressum</a>
-                <a href="/datenschutz" class="footer-link">Privacy</a>
-                <a href="/nutzungsbedingungen" class="footer-link">Terms</a>
             </div>
         </footer>
 

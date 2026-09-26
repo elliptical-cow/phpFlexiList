@@ -21,6 +21,7 @@ const app = Vue.createApp({
             saveStatus: '', // Save status message
             
             // Auto-categorization
+            autoCategorizationEnabled: Boolean(window.FLEXI_CONFIG.FEATURES.AUTO_CATEGORIZATION),
             isAutoCategorizing: false, // Auto-categorization loading state
             showKIConsentDialog: false, // KI consent dialog visibility
             kiConsentGiven: false, // KI consent checkbox state
@@ -227,7 +228,7 @@ const app = Vue.createApp({
         
         // Update document title and meta tags for iPhone compatibility
         updateTitleAndMeta(title) {
-            document.title = `${title} (FlexiList)`;
+            document.title = `${title} (${window.FLEXI_CONFIG.APP_NAME})`;
             
             // Update apple-mobile-web-app-title for iPhone home screen
             let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
@@ -1256,7 +1257,7 @@ const app = Vue.createApp({
         },
         
         async autoCategorize() {
-            if (!this.backendMode) {
+            if (!this.backendMode || !this.autoCategorizationEnabled) {
                 alert('Auto-categorization is only available in backend mode');
                 this.closeMainActions(); // Close dropdown
                 return;

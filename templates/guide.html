@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <title>User Guide - FlexiList</title>
+    <title>User Guide - {{ appName }}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
     <style>
         * { box-sizing: border-box; }
@@ -141,7 +141,7 @@
         <a href="/" class="back-btn">← Back to Home</a>
         
         <div class="content">
-            <h1>📋 FlexiList User Guide</h1>
+            <h1>📋 {{ appName }} User Guide</h1>
             
             <h2>🚀 Getting Started</h2>
             
@@ -232,7 +232,7 @@
             </div>
             
             <div class="warning">
-                <strong>⚠️ Privacy:</strong> List contents are sent via OpenRouter to Google Gemini (USA). Your consent is stored for 28 days and expires automatically.
+                <strong>⚠️ Privacy:</strong> When enabled, list contents are sent to the AI provider selected by the operator. Review that provider's terms before using this feature. Consent is stored locally for 28 days.
             </div>
             
             <h2>📱 Mobile Usage</h2>
@@ -304,16 +304,13 @@
             </div>
             
             <div class="tip">
-                <strong>🚀 Let's go!</strong> You now know all the important functions of FlexiList. Create your first list and organize your daily life!
+                <strong>🚀 Let's go!</strong> You now know all the important functions of {{ appName }}. Create your first list and organize your daily life!
             </div>
         </div>
         
         <footer style="text-align: center; margin-top: 40px; padding: 20px; color: #666;">
             <a href="/" style="color: #666; text-decoration: none; font-size: 0.9rem;">Start</a> | 
-            <a href="/guide" style="color: #666; text-decoration: none; font-size: 0.9rem;">Guide</a> | 
-            <a href="/impressum" style="color: #666; text-decoration: none; font-size: 0.9rem;">Impressum</a> |
-            <a href="/datenschutz" style="color: #666; text-decoration: none; font-size: 0.9rem;">Privacy</a> |
-            <a href="/nutzungsbedingungen" style="color: #666; text-decoration: none; font-size: 0.9rem;">Terms</a>
+            <a href="/guide" style="color: #666; text-decoration: none; font-size: 0.9rem;">Guide</a>
         </footer>
     </div>
 </body>

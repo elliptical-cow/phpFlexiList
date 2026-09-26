@@ -3,7 +3,7 @@ class BackendService {
         // Use config from config.js if available, otherwise fall back to parameter or default
         this.backendUrl = backendUrl || 
                          (window.FLEXI_CONFIG && window.FLEXI_CONFIG.BACKEND_URL) || 
-                         'http://localhost:8080';
+                         window.location.origin;
     }
 
     async loadList(listId) {

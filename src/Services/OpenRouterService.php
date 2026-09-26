@@ -78,7 +78,7 @@ class OpenRouterService
     private LLMDebugLogger $logger;
     private CurlHttpClient $httpClient;
 
-    public function __construct(array $config, string $backendUrl = 'http://localhost:8080')
+    public function __construct(array $config, string $backendUrl = '')
     {
         $this->apiKey = $config['api_key'] ?? null;
         $this->model = $config['model'] ?? 'google/gemini-flash-1.5';
