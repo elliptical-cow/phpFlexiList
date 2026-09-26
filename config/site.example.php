@@ -9,6 +9,9 @@ return [
     'frontend' => [
         'backend_url' => 'https://lists.example.com',
     ],
+    'features' => [
+        'auto_categorization' => false,
+    ],
     'cors' => [
         'allowed_origins' => ['https://lists.example.com'],
     ],
@@ -23,4 +26,3 @@ return [
         ],
     ],
 ];
-

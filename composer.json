@@ -1,6 +1,7 @@
 {
   "name": "flexilist/flexilist",
   "description": "A self-hosted, collaborative checklist application",
+  "license": "MIT",
   "type": "project",
   "require": {
     "php": ">=8.1",
@@ -15,10 +16,12 @@
   "scripts": {
     "lint": "@php tools/lint.php",
     "test": "@php tests/run.php",
+    "test-http": "sh tools/http-smoke.sh",
     "verify-vendor": "@php tools/verify_vendor.php",
     "check": [
       "@lint",
       "@test",
+      "@test-http",
       "@verify-vendor"
     ]
   },

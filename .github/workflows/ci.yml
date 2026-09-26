@@ -23,6 +23,7 @@ jobs:
       - run: composer validate --strict --no-check-lock
       - run: composer lint
       - run: composer test
+      - run: composer test-http
       - run: php tools/verify_vendor.php
 
   frontend:
@@ -33,4 +34,3 @@ jobs:
         with:
           node-version: '20'
       - run: npm test
-

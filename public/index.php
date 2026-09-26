@@ -2,6 +2,18 @@
 
 declare(strict_types=1);
 
+if (PHP_SAPI === 'cli-server') {
+    $requestedPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $staticFile = realpath(__DIR__ . $requestedPath);
+    if ($requestedPath !== '/'
+        && is_string($staticFile)
+        && str_starts_with($staticFile, __DIR__ . DIRECTORY_SEPARATOR)
+        && is_file($staticFile)
+    ) {
+        return false;
+    }
+}
+
 require dirname(__DIR__) . '/autoload.php';
 
 use FlexiList\Config\ConfigLoader;

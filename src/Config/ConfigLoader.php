@@ -34,6 +34,7 @@ final class ConfigLoader
             'FLEXILIST_APP_NAME' => ['app', 'name'],
             'FLEXILIST_BACKEND_URL' => ['frontend', 'backend_url'],
             'FLEXILIST_DATA_DIR' => ['paths', 'data'],
+            'FLEXILIST_RATE_LIMIT_DIR' => ['paths', 'rate_limits'],
             'FLEXILIST_SITE_TEMPLATES' => ['paths', 'site_templates'],
             'FLEXILIST_SITE_CSS' => ['paths', 'site_css'],
             'FLEXILIST_LOG_PATH' => ['paths', 'log'],
