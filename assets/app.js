@@ -264,6 +264,7 @@ const app = Vue.createApp({
                 this.backendMode = true;
                 this.listId = backendInfo.listId;
                 this.backendService.backendUrl = backendInfo.backendUrl;
+                this.backendService.accessToken = backendInfo.accessToken;
                 await this.loadFromBackend();
             } else {
                 // Local mode - use textarea
@@ -321,8 +322,7 @@ const app = Vue.createApp({
                 return;
             }
 
-            const baseUrl = window.FLEXI_CONFIG.BACKEND_URL.startsWith('http') ? window.FLEXI_CONFIG.BACKEND_URL : `http://${window.FLEXI_CONFIG.BACKEND_URL}`;
-            const listUrl = `${baseUrl}/app?key=${this.listId}`;
+            const listUrl = this.buildListUrl(this.listId, this.backendService.accessToken);
             
             try {
                 await navigator.clipboard.writeText(listUrl);
@@ -364,17 +364,15 @@ const app = Vue.createApp({
             }
         },
 
-        // Generate random ID for new list
-        generateRandomId(length = 12) {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
+        buildListUrl(listId, accessToken) {
+            const baseUrl = window.FLEXI_CONFIG.BACKEND_URL || window.location.origin;
+            const url = new URL('/app', baseUrl);
+            url.searchParams.set('id', listId);
+            url.hash = new URLSearchParams({ token: accessToken }).toString();
+            return url.toString();
         },
 
-        // Save current list as new list with random ID
+        // Save current list as a new server-generated list.
         async saveAsNewList() {
             if (!this.backendMode) {
                 alert('Save as new list is only available in backend mode.');
@@ -392,10 +390,7 @@ const app = Vue.createApp({
             this.saveStatus = window.t ? window.t('Creating...') : 'Creating...';
 
             try {
-                // Generate random ID for the new list
-                const newListId = this.generateRandomId(12);
-                
-                // Prepare the data with " (copy)" added to title
+                const credentials = await this.backendService.createList();
                 const copyTitle = this.listTitle + ' (copy)';
                 const listData = {
                     Metadata: { 
@@ -406,18 +401,13 @@ const app = Vue.createApp({
                     Checklist: window.JsonOperations.cleanDataForExport(this.checklist)
                 };
 
-                // Save to backend with new ID
-                await this.backendService.saveList(newListId, listData);
-                
-                // Create the new list URL
-                const baseUrl = window.FLEXI_CONFIG.BACKEND_URL.startsWith('http') ? window.FLEXI_CONFIG.BACKEND_URL : `http://${window.FLEXI_CONFIG.BACKEND_URL}`;
-                const newListUrl = `${baseUrl}/app?key=${newListId}`;
-                const localUrl = `${window.location.origin}${window.location.pathname}?key=${newListId}`;
+                await this.backendService.saveList(credentials.id, listData, credentials.token);
+                const newListUrl = this.buildListUrl(credentials.id, credentials.token);
                 
                 this.saveStatus = 'New list created successfully ✓';
                 
                 // Show success message with the new list link and copy to clipboard
-                if (confirm(`New list created successfully!\n\nTitle: ${copyTitle}\nList ID: ${newListId}\nURL: ${newListUrl}\n\nThe link has been copied to clipboard and you will be redirected to the new list.`)) {
+                if (confirm(`New list created successfully!\n\nTitle: ${copyTitle}\nURL: ${newListUrl}\n\nThe link has been copied to clipboard and you will be redirected to the new list.`)) {
                     // User clicked OK - copy to clipboard and redirect
                     try {
                         await navigator.clipboard.writeText(newListUrl);
@@ -444,7 +434,7 @@ const app = Vue.createApp({
                 
                 // Redirect to the new list after a short delay
                 setTimeout(() => {
-                    window.location.href = localUrl;
+                    window.location.href = newListUrl;
                 }, 500);
 
             } catch (error) {
@@ -463,7 +453,7 @@ const app = Vue.createApp({
             }
         },
 
-        // Start new list with unique random ID
+        // Start a new list with server-generated credentials.
         async startNewList() {
             if (!this.backendMode) {
                 alert('Start new list is only available in backend mode.');
@@ -475,50 +465,9 @@ const app = Vue.createApp({
             this.saveStatus = 'Creating new list...';
 
             try {
-                let newListId;
-                let attempts = 0;
-                const maxAttempts = 10;
-
-                // Keep generating IDs until we find one that doesn't exist
-                do {
-                    newListId = this.generateRandomId(12);
-                    attempts++;
-                    
-                    if (attempts >= maxAttempts) {
-                        throw new Error('Failed to generate unique list ID after multiple attempts');
-                    }
-
-                    // Check if the list already exists
-                    try {
-                        const response = await fetch(`${this.backendService.backendUrl}/api/list/${newListId}/exists`);
-                        const result = await response.json();
-                        
-                        if (!result.exists) {
-                            break; // Found a unique ID
-                        }
-                    } catch (error) {
-                        // If check fails, assume ID is available and try to create
-                        console.warn('Could not check list existence, proceeding with ID:', newListId);
-                        break;
-                    }
-                } while (true);
-
-                // Create the new empty list
-                const emptyListData = {
-                    Metadata: { 
-                        Title: 'Your Checklist',
-                        Hide_Checked: false,
-                        Show_Note_Editor: true
-                    },
-                    Checklist: []
-                };
-
-                await this.backendService.saveList(newListId, emptyListData);
-                
+                const credentials = await this.backendService.createList();
                 this.saveStatus = 'New list created, redirecting...';
-
-                // Redirect to the new list
-                const newListUrl = `${window.location.origin}${window.location.pathname}?key=${newListId}`;
+                const newListUrl = this.buildListUrl(credentials.id, credentials.token);
                 
                 // Small delay to show success message, then redirect
                 setTimeout(() => {

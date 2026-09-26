@@ -41,6 +41,8 @@ class FlexibleItem
             $errors[] = 'Name field is required';
         } elseif (!is_string($data['Name']) || trim($data['Name']) === '') {
             $errors[] = 'Name must be a non-empty string';
+        } elseif (strlen($data['Name']) > 500) {
+            $errors[] = 'Name must not exceed 500 characters';
         }
 
         // Validate Order (required)
@@ -80,6 +82,8 @@ class FlexibleItem
         }
         if (isset($data['Notes']) && !is_string($data['Notes'])) {
             $errors[] = 'Notes must be a string';
+        } elseif (isset($data['Notes']) && strlen($data['Notes']) > 10000) {
+            $errors[] = 'Notes must not exceed 10000 characters';
         }
     }
 

@@ -69,7 +69,7 @@
     </h2>
 
     <div style="text-align: center; margin: 30px 0;">
-        <a href="#" onclick="createRandomList(); return false;">✅ Create New List</a>
+        <a href="#" onclick="createList(); return false;">✅ Create New List</a>
     </div>
 
     <div class="advantages">
@@ -78,22 +78,13 @@
             <li><b>Privacy</b></li>
             <ul>
                 <li>No app installation needed - works everywhere in browser</li>
-                <li>No registration, login or personal data required, only the link (with key) needed to access and share <br><b>Make sure to bookmark the list</b></li>
+                <li>No registration is required. A long access token is stored in the share link. <br><b>Keep the link private and bookmark it.</b></li>
             </ul>
             <li><b>Features</b></li>
             <ul>
                 <li>custom categories that can be arranged</li>
                 <li>automatic categorization of entries</li>
             </ul>
-        </ul>
-    </div>
-    <div class="advantages">
-    <h3>Examples</h3>
-        <ul class="example-grid">
-            <li><a href="/app?key=demogroceries">🛒 Groceries</a></li>
-            <li><a href="/app?key=demopacking">🧳 Packing</a></li>
-            <li><a href="/app?key=demohousework">🏠 Housework</a></li>
-            <li><a href="/app?key=demovacation">✈️ Vacation</a></li>
         </ul>
     </div>
     
@@ -103,19 +94,15 @@
     </div>
 
     <script>
-        function createRandomList() {
-            // Generate random 16-character alphanumeric key
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let randomKey = '';
-            for (let i = 0; i < 16; i++) {
-                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        async function createList() {
+            try {
+                const response = await fetch('/api/lists', { method: 'POST' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const credentials = await response.json();
+                window.location.href = `/app?id=${encodeURIComponent(credentials.id)}#token=${encodeURIComponent(credentials.token)}`;
+            } catch (error) {
+                alert('The list could not be created. Please try again later.');
             }
-            
-            // Debug: log the generated key
-            console.log('Generated random key:', randomKey);
-            
-            // Redirect to new list
-            window.location.href = '/app?key=' + randomKey;
         }
     </script>
 </body>

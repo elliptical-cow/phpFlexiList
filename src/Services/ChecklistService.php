@@ -17,17 +17,14 @@ class ChecklistService
     {
         $this->dataDir = $dataDir;
         if (!is_dir($this->dataDir)) {
-            mkdir($this->dataDir, 0755, true);
+            mkdir($this->dataDir, 0700, true);
         }
     }
 
     public function validateListId(string $listId): string
     {
-        if (!preg_match('/^[a-zA-Z0-9]+$/', $listId)) {
-            throw new ValidationException('ID must contain only alphanumeric characters');
-        }
-        if (strlen($listId) > 32) {
-            throw new ValidationException('ID must not exceed 32 characters');
+        if (!preg_match('/^[a-f0-9]{24}$/', $listId)) {
+            throw new ValidationException('Invalid list identifier');
         }
         return $listId;
     }
@@ -95,15 +92,8 @@ class ChecklistService
 
         $filePath = $this->getListFilePath($listId);
 
-        // If file doesn't exist, create empty list
         if (!file_exists($filePath)) {
-            $emptyList = $this->createEmptyList();
-            try {
-                file_put_contents($filePath, json_encode($emptyList, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            } catch (Exception $e) {
-                throw new Exception("Could not create list: " . $e->getMessage());
-            }
-            return $emptyList;
+            throw new ValidationException('Checklist not found');
         }
 
         // Read existing file
@@ -124,6 +114,19 @@ class ChecklistService
         }
     }
 
+    public function createChecklist(string $listId): array
+    {
+        $this->validateListId($listId);
+        $filePath = $this->getListFilePath($listId);
+        if (file_exists($filePath)) {
+            throw new ValidationException('Checklist already exists');
+        }
+
+        $list = $this->createEmptyList();
+        $this->writeJsonAtomically($filePath, $list);
+        return $list;
+    }
+
     public function updateChecklist(string $listId, ChecklistModel $checklist): array
     {
         // Validate ID
@@ -136,17 +139,7 @@ class ChecklistService
             $rawData = $checklist->toArray();
             $cleanedData = $this->cleanChecklistData($rawData);
 
-            // Debug logging - print the data structure being saved
-            error_log("Saving list {$listId} with cleaned data structure:");
-            error_log(json_encode($cleanedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-            file_put_contents($filePath, json_encode($cleanedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-            // Verify the saved data by reading it back
-            $savedData = json_decode(file_get_contents($filePath), true);
-
-            error_log("Verified saved data for {$listId}:");
-            error_log(json_encode($savedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            $this->writeJsonAtomically($filePath, $cleanedData);
 
             return ['message' => 'List updated successfully', 'id' => $listId];
 
@@ -154,6 +147,22 @@ class ChecklistService
             error_log("Error saving list {$listId}: " . $e->getMessage());
             throw new Exception("Could not save list: " . $e->getMessage());
         }
+    }
+
+    private function writeJsonAtomically(string $filePath, array $data): void
+    {
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $temporaryPath = $filePath . '.tmp.' . bin2hex(random_bytes(6));
+
+        if (file_put_contents($temporaryPath, $json, LOCK_EX) === false) {
+            throw new Exception('Could not write temporary list file');
+        }
+
+        if (!rename($temporaryPath, $filePath)) {
+            unlink($temporaryPath);
+            throw new Exception('Could not replace list file');
+        }
+        chmod($filePath, 0600);
     }
 
     public function getRootLevelData(string $listId): array
@@ -211,7 +220,6 @@ class ChecklistService
         }
 
         if ($itemIndex === null) {
-            error_log("Item '{$itemName}' not found at root level");
             return false;
         }
 
@@ -223,7 +231,6 @@ class ChecklistService
         // Find the target category
         $targetCategory = $this->findCategoryByName($items, $categoryName);
         if (!$targetCategory) {
-            error_log("Category '{$categoryName}' not found");
             return false;
         }
 
@@ -271,9 +278,7 @@ class ChecklistService
 
                 if ($itemName) {
                     $success = $this->moveItemToCategory($listId, $itemName, $categoryName);
-                    if (!$success) {
-                        error_log("Failed to move item '{$itemName}' to category '{$categoryName}'");
-                    }
+                    // Continue processing independent assignments after a miss.
                 }
             }
 

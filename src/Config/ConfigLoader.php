@@ -59,7 +59,7 @@ final class ConfigLoader
 
     private static function validate(array $config): void
     {
-        foreach (['app', 'paths', 'frontend', 'features', 'cors', 'openrouter', 'site'] as $section) {
+        foreach (['app', 'paths', 'frontend', 'features', 'cors', 'security', 'openrouter', 'site'] as $section) {
             if (!isset($config[$section]) || !is_array($config[$section])) {
                 throw new RuntimeException("Missing configuration section: {$section}");
             }
@@ -74,4 +74,3 @@ final class ConfigLoader
         }
     }
 }
-

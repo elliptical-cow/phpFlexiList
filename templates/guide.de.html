@@ -149,7 +149,7 @@
             <div class="step-list">
                 <ol>
                     <li>Klicken Sie auf <strong>"✅ Neue Liste erstellen"</strong> auf der Startseite</li>
-                    <li>Ein zufälliger 16-stelliger Schlüssel wird automatisch generiert</li>
+                    <li>Der Server erzeugt eine zufällige Listen-ID und ein separates Zugriffstoken</li>
                     <li>Sie werden direkt zur neuen Liste weitergeleitet</li>
                     <li>Speichern Sie die URL als Lesezeichen - das ist Ihr permanenter Listen-Link</li>
                     <li>Teilen Sie die URL mit anderen für Zusammenarbeit</li>
@@ -158,11 +158,11 @@
             
             <div class="url-example">
                 <strong>URL-Format:</strong><br>
-                <code>/app?key=a8k2m9p3x7j5n1q6</code> (zufällig generiert)
+                <code>/app?id=&lt;listen-id&gt;#token=&lt;zugriffstoken&gt;</code>
             </div>
             
             <div class="warning">
-                <strong>⚠️ Wichtig:</strong> Schlüssel sollten NICHT selbst gewählt werden - sie werden automatisch zufällig generiert für maximale Sicherheit. <br><b>Jeder, der den Link kennt, kann die Liste bearbeiten</b>
+                <strong>⚠️ Wichtig:</strong> Das Zugriffstoken wird sicher vom Server erzeugt. <br><b>Jeder, der den vollständigen Link kennt, kann die Liste bearbeiten.</b>
             </div>
             
             <div class="tip">
@@ -268,7 +268,7 @@
                 <strong>👁️ Erledigte ausblenden:</strong> Abgehakte Einträge verstecken<br>
                 <strong>🔗 Link kopieren:</strong> URL zum Teilen kopieren<br>
                 <strong>📥 Download Liste:</strong> JSON-Export der Liste<br>
-                <strong>💾 Als neue Liste speichern:</strong> Kopie mit neuem Schlüssel</p>
+                <strong>💾 Als neue Liste speichern:</strong> Kopie mit neuem Zugriffstoken</p>
             </div>
             
             <div class="feature-box">
@@ -282,7 +282,7 @@
                 <h3>Maximale Privatsphäre</h3>
                 <p>• Keine Anmeldung oder persönliche Daten erforderlich<br>
                 • Kein Tracking oder Überwachung<br>
-                • Ihre Listen sind nur über den geheimen Schlüssel zugänglich<br>
+                • Ihre Listen sind nur mit dem geheimen Zugriffstoken zugänglich<br>
                 • Daten gehören allein Ihnen</p>
             </div>
             

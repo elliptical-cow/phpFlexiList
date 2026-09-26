@@ -50,7 +50,7 @@ class ChecklistController
                 ->withHeader('Content-Type', 'application/json')
                 ->write(json_encode($error, JSON_UNESCAPED_UNICODE));
         } catch (Exception $e) {
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'The checklist could not be loaded'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')
@@ -81,7 +81,7 @@ class ChecklistController
                 ->withHeader('Content-Type', 'application/json')
                 ->write(json_encode($error, JSON_UNESCAPED_UNICODE));
         } catch (Exception $e) {
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'The checklist could not be saved'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')
@@ -211,7 +211,7 @@ class ChecklistController
             } catch (Exception $e) {
                 $this->patchMetrics->recordError();
                 error_log("Patch application failed for list {$listId}: " . $e->getMessage());
-                $error = ['error' => 'Bad Request', 'detail' => 'Patch application failed: ' . $e->getMessage()];
+                $error = ['error' => 'Bad Request', 'detail' => 'Patch application failed'];
                 return (new NativeResponse())
                     ->withStatus(400)
                     ->withHeader('Content-Type', 'application/json')
@@ -227,7 +227,7 @@ class ChecklistController
                 ->write(json_encode($error, JSON_UNESCAPED_UNICODE));
         } catch (Exception $e) {
             $this->patchMetrics->recordError();
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'The checklist could not be updated'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')
@@ -279,12 +279,6 @@ class ChecklistController
                 $listTitle
             );
 
-            error_log("Auto-categorization for list {$listId}:");
-            error_log("List Title: " . $listTitle);
-            error_log("Items: " . json_encode($categorizationRequest->items));
-            error_log("Categories: " . json_encode($categorizationRequest->categories));
-            error_log("Assignments: " . json_encode($result->toArray()['assignments']));
-
             return (new NativeResponse())
                 ->write(json_encode($result->toArray(), JSON_UNESCAPED_UNICODE))
                 ->withHeader('Content-Type', 'application/json');
@@ -313,7 +307,7 @@ class ChecklistController
                 $detail = 'Categorization service temporarily unavailable';
             } else {
                 $status = 500;
-                $detail = 'Categorization service error: ' . $e->getMessage();
+                $detail = 'Categorization service error';
             }
 
             $error = [
@@ -340,7 +334,7 @@ class ChecklistController
                 ->write(json_encode($stats, JSON_UNESCAPED_UNICODE))
                 ->withHeader('Content-Type', 'application/json');
         } catch (Exception $e) {
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'Statistics could not be calculated'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')
@@ -367,7 +361,7 @@ class ChecklistController
                     ->write(json_encode($error, JSON_UNESCAPED_UNICODE));
             }
         } catch (Exception $e) {
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'The checklist could not be deleted'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')
@@ -386,7 +380,7 @@ class ChecklistController
                 ->write(json_encode($result, JSON_UNESCAPED_UNICODE))
                 ->withHeader('Content-Type', 'application/json');
         } catch (Exception $e) {
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'The request could not be completed'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')
@@ -402,7 +396,7 @@ class ChecklistController
                 ->write(json_encode($metrics, JSON_UNESCAPED_UNICODE))
                 ->withHeader('Content-Type', 'application/json');
         } catch (Exception $e) {
-            $error = ['error' => 'Internal Server Error', 'detail' => $e->getMessage()];
+            $error = ['error' => 'Internal Server Error', 'detail' => 'Metrics could not be calculated'];
             return (new NativeResponse())
                 ->withStatus(500)
                 ->withHeader('Content-Type', 'application/json')

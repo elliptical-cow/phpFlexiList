@@ -67,24 +67,8 @@
 {{ appName }}: intelligente Einkaufs-, Pack-, ToDo-Listen
     </h2>
 
-    <div class="private-notice" style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; border-radius: 5px;">
-        <h3 style="margin-top: 0; color: #856404;">⚠️ Privates Angebot</h3>
-        <p><strong>Dieser Service ist ein rein privates, nicht-gewerbliches Angebot 
-        ohne Gewinnerzielungsabsicht.</strong></p>
-        
-        <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>Nutzung nur für Familie und Bekanntenkreis des Betreibers</li>
-            <li>Kein professioneller Service oder Support</li>
-            <li>Keine Garantien oder Gewährleistung</li>
-            <li>Nutzung erfolgt auf eigene Gefahr</li>
-            <li>Service kann jederzeit ohne Vorankündigung eingestellt werden, Sie sind für Datensicherung selbst verantwortlich.</li>
-        </ul>
-        
-        <p><strong>Es wird kein Vertragsverhältnis begründet.</strong></p>
-    </div>
-
     <div style="text-align: center; margin: 30px 0;">
-        <a href="#" onclick="createRandomList(); return false;">✅ Neue Liste erstellen</a>
+        <a href="#" onclick="createList(); return false;">✅ Neue Liste erstellen</a>
     </div>
 
     <div class="advantages">
@@ -93,22 +77,13 @@
             <li><b>Privatsphäre</b></li>
             <ul>
                 <li>Keine App-Installation nötig - funktioniert überall im Browser</li>
-                <li>Keine Anmeldung, Login oder persönliche Daten erforderlich, nur der Link (mit Key) wird zum Zugreifen und Teilen benötigt <br><b>Liste daher unbedingt bookmarken</b></li>
+                <li>Keine Anmeldung erforderlich. Der Freigabelink enthält ein langes Zugriffstoken. <br><b>Link vertraulich behandeln und bookmarken.</b></li>
             </ul>
             <li><b>Funktionen</b></li>
             <ul>
                 <li>eigene Kategorien, die angeordnet werden koennen</li>
                 <li>Automatisches Einordnen von Einträgen in Kategorien</li>
                 <li>Erweiterte Features auch in mobiler Ansicht durch Kippen des Telefons</li>
-        </ul>
-    </div>
-    <div class="advantages">
-    <h3>Beispiele</h3>
-        <ul class="example-grid">
-            <li><a href="/app?key=demoeinkaufsliste">🛒 Einkaufsliste</a></li>
-            <li><a href="/app?key=demokofferpacken">🧳 Koffer packen</a></li>
-            <li><a href="/app?key=demohausarbeiten">🏠 Hausarbeiten</a></li>
-            <li><a href="/app?key=demourlaubsplanung">✈️ Urlaubsplanung</a></li>
         </ul>
     </div>
     
@@ -118,19 +93,15 @@
     </div>
 
     <script>
-        function createRandomList() {
-            // Generate random 16-character alphanumeric key
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let randomKey = '';
-            for (let i = 0; i < 16; i++) {
-                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        async function createList() {
+            try {
+                const response = await fetch('/api/lists', { method: 'POST' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const credentials = await response.json();
+                window.location.href = `/app?id=${encodeURIComponent(credentials.id)}#token=${encodeURIComponent(credentials.token)}`;
+            } catch (error) {
+                alert('Die Liste konnte nicht erstellt werden. Bitte später erneut versuchen.');
             }
-            
-            // Debug: log the generated key
-            console.log('Generated random key:', randomKey);
-            
-            // Redirect to new list
-            window.location.href = '/app?key=' + randomKey;
         }
     </script>
 </body>

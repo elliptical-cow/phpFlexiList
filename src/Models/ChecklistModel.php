@@ -6,6 +6,10 @@ namespace FlexiList\Models;
 
 class ChecklistModel
 {
+    private const MAX_ITEMS = 1000;
+    private const MAX_DEPTH = 12;
+    private const MAX_SERIALIZED_BYTES = 1048576;
+
     public array $Checklist;
     public array $Metadata;
 
@@ -18,6 +22,11 @@ class ChecklistModel
     public static function validate(array $data): void
     {
         $errors = [];
+
+        $serialized = json_encode($data);
+        if ($serialized === false || strlen($serialized) > self::MAX_SERIALIZED_BYTES) {
+            $errors[] = 'Checklist payload is too large';
+        }
 
         // Validate Metadata structure (optional)
         if (isset($data['Metadata'])) {
@@ -57,7 +66,12 @@ class ChecklistModel
             $errors[] = 'Checklist must be an array';
         } else {
             // Validate each item in the checklist
+            $itemCount = 0;
             foreach ($data['Checklist'] as $index => $item) {
+                if (!is_array($item)) {
+                    $errors[] = "Checklist[{$index}] must be an object";
+                    continue;
+                }
                 try {
                     FlexibleItem::validate($item);
                 } catch (ValidationException $e) {
@@ -65,11 +79,34 @@ class ChecklistModel
                         $errors[] = "Checklist[{$index}]: {$error}";
                     }
                 }
+                self::measureItem($item, 1, $itemCount, $errors);
+            }
+            if ($itemCount > self::MAX_ITEMS) {
+                $errors[] = 'Checklist contains too many items';
             }
         }
 
         if (!empty($errors)) {
             throw new ValidationException('Checklist validation failed', $errors);
+        }
+    }
+
+    private static function measureItem(array $item, int $depth, int &$count, array &$errors): void
+    {
+        $count++;
+        if ($depth > self::MAX_DEPTH) {
+            $errors[] = 'Checklist nesting is too deep';
+            return;
+        }
+
+        $children = $item['Content'] ?? [];
+        if (!is_array($children)) {
+            return;
+        }
+        foreach ($children as $child) {
+            if (is_array($child)) {
+                self::measureItem($child, $depth + 1, $count, $errors);
+            }
         }
     }
 

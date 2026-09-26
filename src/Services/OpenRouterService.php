@@ -153,7 +153,7 @@ class OpenRouterService
         }
 
         // If all strategies fail
-        throw new Exception('No valid JSON array found in LLM response: ' . substr($content, 0, 200));
+        throw new Exception('No valid JSON array found in LLM response');
     }
 
     private function validateAssignments(array $assignments): array
@@ -223,10 +223,7 @@ class OpenRouterService
             if ($statusCode !== 200) {
                 $this->logger->logResponse($statusCode, $responseBody, null, 'API Error');
                 
-                error_log("OpenRouter API error: {$statusCode}");
-                error_log("Error details: {$responseBody}");
-                error_log("Request payload: " . json_encode($payload, JSON_PRETTY_PRINT));
-                error_log("Request headers: " . json_encode($headers, JSON_PRETTY_PRINT));
+                error_log("OpenRouter request failed with HTTP {$statusCode}");
 
                 // Specific error messages based on status code
                 $detailMsg = match ($statusCode) {
@@ -237,7 +234,7 @@ class OpenRouterService
                     default => "HTTP {$statusCode}"
                 };
 
-                throw new Exception("OpenRouter API error: {$detailMsg}. Details: " . substr($responseBody, 0, 200));
+                throw new Exception("OpenRouter API error: {$detailMsg}");
             }
 
             $result = json_decode($responseBody, true);
@@ -274,9 +271,8 @@ class OpenRouterService
             } catch (Exception $parseError) {
                 // Log parsing error
                 $this->logger->logResponse($statusCode, $content, null, "Parse Error: " . $parseError->getMessage());
-                error_log("Failed to parse LLM response: {$content}");
                 error_log("Parse error: " . $parseError->getMessage());
-                throw new Exception("Invalid LLM response: " . $parseError->getMessage());
+                throw new Exception('Invalid LLM response');
             }
 
         } catch (CurlException $e) {
@@ -286,103 +282,4 @@ class OpenRouterService
         }
     }
 
-    public function testConnection(): array
-    {
-        // Test 1: API-Key validation
-        if (!$this->apiKey || $this->apiKey === 'your_api_key_here') {
-            return [
-                'success' => false,
-                'error' => 'OpenRouter API key not configured',
-                'details' => 'Set OPENROUTER_API_KEY in environment variables',
-                'current_key' => $this->apiKey ? substr($this->apiKey, 0, 10) . '...' : 'None'
-            ];
-        }
-
-        // Test 2: Simple API call
-        try {
-            $testPayload = [
-                'model' => $this->model,
-                'messages' => [['role' => 'user', 'content' => 'Test']],
-                'max_tokens' => 10
-            ];
-
-            $headers = [
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-                'HTTP-Referer' => $this->getBackendUrl(),
-                'X-Title' => 'FlexiList Connection Test'
-            ];
-
-            error_log("Testing OpenRouter connection with model: {$this->model}");
-            error_log("API Key (first 10 chars): " . substr($this->apiKey, 0, 10) . '...');
-            error_log("Test payload: " . json_encode($testPayload, JSON_PRETTY_PRINT));
-
-            $response = $this->httpClient->post(
-                $this->baseUrl . '/chat/completions',
-                [
-                    'json' => $testPayload,
-                    'headers' => $headers,
-                    'timeout' => 10
-                ]
-            );
-
-            $statusCode = $response->getStatusCode();
-            $responseBody = $response->getBody()->getContents();
-
-            error_log("Response status: {$statusCode}");
-            error_log("Response text: {$responseBody}");
-
-            if ($statusCode === 200) {
-                $result = json_decode($responseBody, true);
-                return [
-                    'success' => true,
-                    'message' => 'OpenRouter connection successful',
-                    'model' => $this->model,
-                    'status_code' => $statusCode,
-                    'response_preview' => substr($result['choices'][0]['message']['content'] ?? '', 0, 100)
-                ];
-            } else {
-                $errorJson = null;
-                try {
-                    $errorJson = json_decode($responseBody, true);
-                } catch (Exception $e) {
-                    // Ignore JSON parsing errors
-                }
-
-                return [
-                    'success' => false,
-                    'error' => "OpenRouter API error: {$statusCode}",
-                    'details' => $responseBody,
-                    'error_json' => $errorJson,
-                    'model' => $this->model,
-                    'payload' => $testPayload,
-                    'headers' => array_filter($headers, fn($key) => $key !== 'Authorization', ARRAY_FILTER_USE_KEY)
-                ];
-            }
-
-        } catch (CurlException $e) {
-            if (strpos($e->getMessage(), 'timeout') !== false) {
-                return [
-                    'success' => false,
-                    'error' => 'Connection timeout',
-                    'details' => 'Request timed out after 10 seconds',
-                    'model' => $this->model
-                ];
-            }
-            
-            return [
-                'success' => false,
-                'error' => 'Connection failed: ' . $e->getMessage(),
-                'details' => 'Exception type: ' . get_class($e),
-                'model' => $this->model
-            ];
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'error' => 'Connection failed: ' . $e->getMessage(),
-                'details' => 'Exception type: ' . get_class($e),
-                'model' => $this->model
-            ];
-        }
-    }
 }

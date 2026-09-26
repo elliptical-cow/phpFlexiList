@@ -149,7 +149,7 @@
             <div class="step-list">
                 <ol>
                     <li>Click <strong>"✅ Create New List"</strong> on the homepage</li>
-                    <li>A random 16-character key is automatically generated</li>
+                    <li>The server generates a random list ID and a separate access token</li>
                     <li>You are redirected directly to the new list</li>
                     <li>Bookmark the URL - this is your permanent list link</li>
                     <li>Share the URL with others for collaboration</li>
@@ -158,15 +158,15 @@
             
             <div class="url-example">
                 <strong>URL Format:</strong><br>
-                <code>/app?key=a8k2m9p3x7j5n1q6</code> (randomly generated)
+                <code>/app?id=&lt;list-id&gt;#token=&lt;access-token&gt;</code>
             </div>
             
             <div class="warning">
-                <strong>⚠️ Important:</strong> Keys should NOT be chosen by users - they are automatically randomly generated for maximum security. <br><b>Anyone who knows the link can edit the list</b>
+                <strong>⚠️ Important:</strong> The access token is generated securely by the server. <br><b>Anyone who knows the complete link can edit the list.</b>
             </div>
             
             <div class="tip">
-                <strong>💡 Tip:</strong> No signup required! Your list URL is your only access key.
+                <strong>💡 Tip:</strong> No signup is required. Keep the complete list URL private.
             </div>
             
             <h2>✏️ Basic Functions</h2>
@@ -269,7 +269,7 @@
                 <strong>👁️ Hide completed:</strong> Hide checked entries<br>
                 <strong>🔗 Copy link:</strong> Copy URL for sharing<br>
                 <strong>📥 Download list:</strong> JSON export of the list<br>
-                <strong>💾 Save as new list:</strong> Copy with new key</p>
+                <strong>💾 Save as new list:</strong> Copy with a new access token</p>
             </div>
             
             <div class="feature-box">
@@ -283,7 +283,7 @@
                 <h3>Maximum Privacy</h3>
                 <p>• No registration or personal data required<br>
                 • No tracking or monitoring<br>
-                • Your lists are only accessible via the secret key<br>
+                • Your lists are only accessible with the secret access token<br>
                 • Data belongs solely to you</p>
             </div>
             

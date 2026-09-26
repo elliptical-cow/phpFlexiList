@@ -1,6 +1,7 @@
 /vendor/
 /node_modules/
 /data/*.json
+/data/**/*.json
 /var/
 /.env
 /config/site.php
@@ -10,4 +11,3 @@
 /.idea/
 /.vscode/
 /.playwright-mcp/
-

@@ -14,6 +14,7 @@ return [
         'site_templates' => null,
         'site_css' => null,
         'log' => dirname(__DIR__) . '/var/flexilist.log',
+        'rate_limits' => dirname(__DIR__) . '/var/rate-limits',
     ],
     'frontend' => [
         // Empty means same origin as the web application.
@@ -30,6 +31,11 @@ return [
     'logging' => [
         'enabled' => false,
     ],
+    'security' => [
+        'max_request_bytes' => 1048576,
+        'create_limit_per_hour' => 30,
+        'ai_limit_per_minute' => 10,
+    ],
     'openrouter' => [
         'api_key' => null,
         'model' => 'google/gemini-2.5-flash-lite',
@@ -44,4 +50,3 @@ return [
         'pages' => [],
     ],
 ];
-

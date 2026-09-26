@@ -1,174 +1,96 @@
 class BackendService {
-    constructor(backendUrl = null) {
-        // Use config from config.js if available, otherwise fall back to parameter or default
-        this.backendUrl = backendUrl || 
-                         (window.FLEXI_CONFIG && window.FLEXI_CONFIG.BACKEND_URL) || 
-                         window.location.origin;
+    constructor(backendUrl = null, accessToken = null) {
+        this.backendUrl = (backendUrl || window.FLEXI_CONFIG.BACKEND_URL || window.location.origin).replace(/\/$/, '');
+        this.accessToken = accessToken;
+    }
+
+    authHeaders(token = this.accessToken) {
+        if (!token) {
+            throw new Error('List access token is required');
+        }
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+    }
+
+    async createList() {
+        const response = await fetch(`${this.backendUrl}/api/lists`, { method: 'POST' });
+        if (!response.ok) {
+            throw new Error(`Could not create list (HTTP ${response.status})`);
+        }
+        return response.json();
     }
 
     async loadList(listId) {
-        if (!listId) {
-            throw new Error('List ID is required');
-        }
-
-        const response = await fetch(`${this.backendUrl}/api/list/${listId}`);
-        
+        const response = await fetch(`${this.backendUrl}/api/list/${encodeURIComponent(listId)}`, {
+            headers: this.authHeaders()
+        });
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error(`Could not load list (HTTP ${response.status})`);
         }
-
         const data = await response.json();
-        
-        if (!data || !data.Checklist) {
+        if (!data || !Array.isArray(data.Checklist)) {
             throw new Error('Invalid data format from server');
         }
-
         return data;
     }
 
-    async saveList(listId, data) {
-        if (!listId) {
-            throw new Error('List ID is required');
-        }
-
-
-        const response = await fetch(`${this.backendUrl}/api/list/${listId}`, {
+    async saveList(listId, data, token = this.accessToken) {
+        const response = await fetch(`${this.backendUrl}/api/list/${encodeURIComponent(listId)}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: this.authHeaders(token),
             body: JSON.stringify(data)
         });
-        
-        if (!response.ok) {
-            // Try to get detailed error response
-            let errorDetail = `HTTP ${response.status}: ${response.statusText}`;
-            try {
-                const errorData = await response.json();
-                if (errorData.detail) {
-                    errorDetail = `${errorDetail} - ${errorData.detail}`;
-                }
-                console.error('PUT Error Response:', errorData);
-            } catch (e) {
-                console.error('Could not parse error response:', e);
-            }
-            throw new Error(errorDetail);
-        }
-
-        return await response.json();
+        return this.parseResponse(response, 'Could not save list');
     }
 
     async patchList(listId, operations) {
-        if (!listId) {
-            throw new Error('List ID is required');
-        }
-
-        const patchRequest = {
-            operations: operations
-        };
-        
-        try {
-            
-            const response = await fetch(`${this.backendUrl}/api/list/${listId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(patchRequest)
-            });
-            
-            if (!response.ok) {
-                // Try to get detailed error response
-                let errorDetail = `HTTP ${response.status}: ${response.statusText}`;
-                try {
-                    const errorData = await response.json();
-                    if (errorData.detail) {
-                        errorDetail = `${errorDetail} - ${errorData.detail}`;
-                    }
-                    console.error('PATCH Error Response:', errorData);
-                } catch (e) {
-                    console.error('Could not parse error response:', e);
-                }
-                throw new Error(errorDetail);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error patching list:', error);
-            throw error;
-        }
+        const response = await fetch(`${this.backendUrl}/api/list/${encodeURIComponent(listId)}`, {
+            method: 'PATCH',
+            headers: this.authHeaders(),
+            body: JSON.stringify({ operations })
+        });
+        return this.parseResponse(response, 'Could not update list');
     }
 
     async autoCategorize(listId, items, categories) {
-        if (!listId) {
-            throw new Error('List ID is required');
-        }
-
-        const response = await fetch(`${this.backendUrl}/api/list/${listId}/auto-categorize`, {
+        const response = await fetch(`${this.backendUrl}/api/list/${encodeURIComponent(listId)}/auto-categorize`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                items: items,
-                categories: categories
-            })
+            headers: this.authHeaders(),
+            body: JSON.stringify({ items, categories })
         });
-        
-        if (!response.ok) {
-            let errorData;
-            try {
-                errorData = await response.json();
-            } catch {
-                // Handle empty or invalid JSON response
-                throw new Error(`Categorization service unavailable (HTTP ${response.status}). Please try again later.`);
-            }
-            throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}`);
-        }
+        return this.parseResponse(response, 'Categorization service unavailable');
+    }
 
-        let result;
+    async parseResponse(response, fallbackMessage) {
+        let payload = null;
         try {
-            result = await response.json();
+            payload = await response.json();
         } catch {
-            // Handle empty or invalid JSON response
-            throw new Error('Categorization service returned invalid response. Please try again later.');
+            // Use the generic error below.
         }
-        
-        if (!result.success) {
-            throw new Error(result.message || 'Categorization failed');
+        if (!response.ok) {
+            throw new Error(payload?.detail || payload?.error || `${fallbackMessage} (HTTP ${response.status})`);
         }
-
-        return result;
+        return payload;
     }
 
     checkBackendAvailability() {
-        // Check if we have backend integration variables from the server
-        if (window.BACKEND_URL && window.LIST_ID) {
-            return {
-                available: true,
-                backendUrl: window.BACKEND_URL,
-                listId: window.LIST_ID
-            };
-        }
-        
-        // Check URL parameters directly (for local development)
-        // Check for 'key' first, then fall back to 'id' for backward compatibility
-        const urlParams = new URLSearchParams(window.location.search);
-        const listId = urlParams.get('key') || urlParams.get('id');
-        
-        if (listId) {
-            return {
-                available: true,
-                backendUrl: this.backendUrl,
-                listId: listId
-            };
+        const listId = new URLSearchParams(window.location.search).get('id');
+        const accessToken = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token');
+        if (!listId || !accessToken) {
+            return { available: false, backendUrl: null, listId: null, accessToken: null };
         }
 
+        this.accessToken = accessToken;
         return {
-            available: false,
-            backendUrl: null,
-            listId: null
+            available: true,
+            backendUrl: this.backendUrl,
+            listId,
+            accessToken
         };
     }
 }
 
-// Export for use in other files
 window.BackendService = BackendService;
